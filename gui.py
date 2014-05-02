@@ -12,7 +12,7 @@ class Application(Frame):
         self.TEXT.configure(state="normal")
         self.TEXT.delete(1.0, END)  # clear text
         self.TEXT.configure(state="disabled")
-        p = subprocess.Popen(['python', pyfile], stdout=subprocess.PIPE,
+        p = subprocess.Popen(['python', pyfile, '--nocolours'], stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
         while p.poll() is None:
             l = p.stdout.readline()
@@ -23,9 +23,6 @@ class Application(Frame):
         self.TEXT.configure(state="normal")
         self.TEXT.insert(END, p.stdout.read())
         self.TEXT.configure(state="disabled")
-
-    def process(self):
-        pass
 
     def createWidgets(self):
         self.SCAN = Button(self)

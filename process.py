@@ -28,12 +28,16 @@ import datetime
 import ConfigParser
 import glob
 import re
+import argparse
 from sys import argv
 from xml.dom.minidom import parseString
 
 error = 0
 failed = 0
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--nocolours', action='store_true')
+args = parser.parse_args()
 
 def filter_alphanum(string):
     # Strip a string of characters that are not alphanumeric, whitespace, or
@@ -57,20 +61,20 @@ def find_max_index(name, start):
 
 class Colours:
     # Idea from joeld from StackOverflow question 287871
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
+    if args.nocolours == False:
+        OKGREEN = '\033[92m'
+        WARNING = '\033[93m'
+        FAIL = '\033[91m'
+        ENDC = '\033[0m'
+        BOLD = '\033[1m'
+    else:
+        OKGREEN = WARNING = FAIL = ENDC = BOLD = ''
 
 FNULL = open(os.devnull, 'w')
 
 try:
     from PIL import Image
     import zbar
-
-    if len(argv) > 1:
-        path = os.listdir(argv[1])
 
     # Defaults
     config = ConfigParser.RawConfigParser(defaults={'cropbox': 'None',
