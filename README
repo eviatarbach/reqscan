@@ -1,0 +1,7 @@
+Options:
+
+- cropbox: None or four space-delimited numbers
+- orientation: check for upside-down images. Requires zbarimg binary
+- datamatrix: check for datamatrix codes or not
+- symbologies: space-delimited list of ZBar symbologies to accept. Options are ean13, ean8, upca, upce, isbn13, isbn10, i25, code39, code128
+- resize: scaling factor for saving images
