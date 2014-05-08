@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Copyright 2011--2013 Eviatar Bach
+Copyright 2011--2014 Eviatar Bach
 
 This file is part of patient-form-scanning.
 
@@ -45,7 +45,7 @@ try:
     config.readfp(options_file)
     if not config.has_section('Options'):
         raise ConfigParser.NoSectionError
-except IOError, ConfigParser.NoSectionError:
+except (IOError, ConfigParser.NoSectionError):
     config.add_section('Options')
     options_file = open('options.txt', 'w')
     config.write(options_file)
