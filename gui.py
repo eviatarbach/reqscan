@@ -24,14 +24,16 @@ recognition.'''
 import subprocess
 
 from Tkinter import *
+import ttk
+import tkFont
 
 SYMBOLOGIES = ['ean13', 'ean8', 'upca', 'upce', 'isbn13', 'isbn10', 'i25',
                'code39', 'code128', 'pdf417', 'qrcode']
 
 class Application(Frame):
     def run_script(self, pyfile):
-        self.SCAN.configure(state="disabled")
-        self.PROC.configure(state="disabled")
+        self.scan_button.configure(state="disabled")
+        self.process_button.configure(state="disabled")
         self.output.configure(state="normal")
         self.output.delete(1.0, END)  # clear text
         self.output.configure(state="disabled")
@@ -48,8 +50,8 @@ class Application(Frame):
         self.output.configure(state="normal")
         self.output.insert(END, p.stdout.read())
         self.output.configure(state="disabled")
-        self.SCAN.configure(state="normal")
-        self.PROC.configure(state="normal")
+        self.scan_button.configure(state="normal")
+        self.process_button.configure(state="normal")
 
     def set_state(self, widget, state):
         '''Set states of a widget's children if it has any, else just set its
@@ -63,37 +65,51 @@ class Application(Frame):
     def create_widgets(self):
         # Script output
         self.output = Text(self, state='disabled')
-        self.output.grid(row=0, column=2)
+        self.output.grid(row=0, column=2, sticky='N', padx=(40, 0))
 
         # Don't let there be a cursor
         self.output.bind('<1>', lambda event: self.output.focus_set())
 
-        self.scan_pane = Frame(self)
-        self.scan_pane.grid(row=0, column=0, sticky='N')
+        # Start scan widgets
+        self.scan_pane = Frame(self, relief='groove', borderwidth=1)
+        self.scan_pane.grid(row=0, column=0, sticky='N', ipadx=15, ipady=15)
 
-        Label(self.scan_pane, text='Scan options:').grid(row=0, column=0,
-                                                         sticky='W')
+        self.bold_font = tkFont.Font(font='TkDefaultFont')
+        self.bold_font['weight'] = 'bold'
+        self.scan_label = ttk.Label(self.scan_pane, text='Scan options',
+                                    font=self.bold_font)
+        self.scan_label.grid(row=0, column=0, sticky='W', pady=(0, 15))
 
-        Label(self.scan_pane, text='DPI:').grid(row=1, column=0, sticky='W')
+        ttk.Label(self.scan_pane, text='DPI:').grid(row=1, column=0,
+                                                    sticky='W')
         self.dpi = IntVar()
         self.dpi.set(300)
-        Entry(self.scan_pane, textvariable=self.dpi).grid(row=2,
-                                                          column=0,
-                                                          sticky='W')
+        ttk.Entry(self.scan_pane, textvariable=self.dpi,
+                  width=6).grid(row=2,
+                                column=0,
+                                sticky='W',
+                                pady=(0, 15))
 
         self.source = StringVar()
-        Label(self.scan_pane, text='Scan source:').grid(row=3, column=0,
+        ttk.Label(self.scan_pane, text='Scan source:').grid(row=3, column=0,
                                                         sticky='W')
 
-        OptionMenu(self.scan_pane, self.source, 'a', 'b').grid(row=4,
-                                                               column=0,
-                                                               sticky='W')
-        Button(self.scan_pane, text="Scan",
-               command=lambda: self.run_script('scan.py')).grid(row=5,
+        ttk.Entry(self.scan_pane, textvariable=self.source).grid(row=4,
                                                                 column=0,
                                                                 sticky='W')
-        self.process_pane = Frame(self)
-        self.process_pane.grid(row=0, column=1, sticky='N')
+        self.scan_button = ttk.Button(self, text="Scan",
+                                  command=lambda:
+                                           self.run_script('scan.py'))
+        self.scan_button.grid(row=1, column=0, sticky='W')
+
+        # Start process widgets
+        self.process_pane = Frame(self, relief='groove', borderwidth=1)
+        self.process_pane.grid(row=0, column=1, sticky='N', ipadx=15, ipady=15,
+                               pady=(0, 15), padx=(15, 0))
+
+        ttk.Label(self.process_pane, text='Process options',
+                  font=self.bold_font).grid(row=0, column=0, sticky='W',
+                                            pady=(0, 15))
 
         self.dir_var = StringVar()
         self.dir_var.set('default')
@@ -107,18 +123,18 @@ class Application(Frame):
                                       command=lambda:
                                                self.dir.configure(state='normal'))
 
-        Label(self.process_pane, text="Process to folder:").grid(row=0, column=0, sticky='W')
-        self.default_dir.grid(row=1, column=0, sticky='W')
-        self.custom_dir.grid(row=2, column=0, sticky='W')
-        self.dir = Entry(self.process_pane)
-        self.dir.grid(row=3, column=0, sticky='W')
+        ttk.Label(self.process_pane, text="Process to folder:").grid(row=1, column=0, sticky='W')
+        self.default_dir.grid(row=2, column=0, sticky='W')
+        self.custom_dir.grid(row=3, column=0, sticky='W')
+        self.dir = ttk.Entry(self.process_pane)
+        self.dir.grid(row=4, column=0, sticky='W')
         self.dir.configure(state="disabled")
 
         self.crop = Frame(self.process_pane)
         self.crop.grid(row=6, column=0, sticky='W')
 
         self.crop_check_state = StringVar()
-        self.crop_CHECK = Checkbutton(self.process_pane, text="Crop",
+        self.crop_check = Checkbutton(self.process_pane, text="Crop",
                                       variable=self.crop_check_state,
                                       command=lambda:
                                                self.set_state(self.crop,
@@ -126,23 +142,28 @@ class Application(Frame):
                                       onvalue='normal', offvalue='disabled')
         self.crop_check_state.set('disabled')
 
-        self.crop_CHECK.grid(row=5, column=0, sticky='W')
+        self.crop_check.grid(row=5, column=0, sticky='W', pady=(15, 0))
         self.cropbox = [IntVar(), IntVar(), IntVar(), IntVar()]
-        Label(self.crop, text='(').grid(row=0, column=0)
-        Entry(self.crop, textvariable=self.cropbox[0]).grid(row=0, column=1)
-        Label(self.crop, text=',').grid(row=0, column=2)
-        Entry(self.crop, textvariable=self.cropbox[1]).grid(row=0, column=3)
-        Label(self.crop, text=')').grid(row=0, column=4)
-
-        Label(self.crop, text='(').grid(row=1, column=0)
-        Entry(self.crop, textvariable=self.cropbox[2]).grid(row=1, column=1)
-        Label(self.crop, text=',').grid(row=1, column=2)
-        Entry(self.crop, textvariable=self.cropbox[3]).grid(row=1, column=3)
-        Label(self.crop, text=')').grid(row=1, column=4)
+        ttk.Label(self.crop, text='(').grid(row=0, column=0)
+        ttk.Entry(self.crop, textvariable=self.cropbox[0],
+                  width=7).grid(row=0, column=1)
+        ttk.Label(self.crop, text=', ').grid(row=0, column=2)
+        ttk.Entry(self.crop, textvariable=self.cropbox[1],
+                  width=7).grid(row=0, column=3)
+        ttk.Label(self.crop, text=')').grid(row=0, column=4)
+        ttk.Label(self.crop, text='(').grid(row=1, column=0)
+        ttk.Entry(self.crop, textvariable=self.cropbox[2],
+                  width=7).grid(row=1, column=1)
+        ttk.Label(self.crop, text=', ').grid(row=1, column=2)
+        ttk.Entry(self.crop, textvariable=self.cropbox[3],
+                  width=7).grid(row=1, column=3)
+        ttk.Label(self.crop, text=')').grid(row=1, column=4)
 
         self.set_state(self.crop, 'disabled')
         self.symbologies = Frame(self.process_pane)
-        Label(self.process_pane, text='Symbologies:').grid(row=7, column=0,                                                           sticky='W')
+        ttk.Label(self.process_pane, text='Symbologies:').grid(row=7, column=0,
+                                                               sticky='W',
+                                                               pady=(15, 0))
         self.symbologies.grid(row=8, column=0, sticky='W')
 
         for i, sym in enumerate(SYMBOLOGIES):
@@ -157,20 +178,20 @@ class Application(Frame):
 
         self.resize = DoubleVar()
         self.resize.set(1.0)
-        self.resize_field = Entry(self.process_pane, textvariable=self.resize,
-                                  state='disabled')
+        self.resize_field = ttk.Entry(self.process_pane, textvariable=self.resize,
+                                      state='disabled', width=5)
         self.resize_field.grid(row=10, column=0, sticky='W')
         self.resize_var = StringVar()
         self.resize_var.set('disabled')
         Checkbutton(self.process_pane, text='Resize', variable=self.resize_var,
                     onvalue='normal', offvalue='disabled',
                     command=lambda: self.set_state(self.resize_field,
-                                                   self.resize_var.get())).grid(row=9, column=0, sticky='W')
+                                                   self.resize_var.get())).grid(row=9, column=0, sticky='W', pady=(15, 0))
 
-        self.PROC = Button(self.process_pane, text="Process",
+        self.process_button = ttk.Button(self, text="Process",
                            command=lambda: self.run_script('process.py'))
 
-        self.PROC.grid(row=4, column=0, sticky='W')
+        self.process_button.grid(row=1, column=1, sticky='W')
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -178,6 +199,9 @@ class Application(Frame):
         self.create_widgets()
 
 root = Tk()
+root.resizable(0, 0) # disable resizing
+root.configure(padx=20, pady=20)
+root.tk.call('wm', 'iconphoto', root._w, PhotoImage(file='icon.png'))
 app = Application(master=root)
 app.master.title('Reqscan')
 app.mainloop()
