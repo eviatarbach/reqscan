@@ -24,7 +24,6 @@ recognition.'''
 import subprocess
 import ConfigParser
 import os
-import datetime
 import glob
 
 FNULL = open(os.devnull, 'w')
@@ -53,10 +52,9 @@ except (IOError, ConfigParser.NoSectionError):
 
 # Make directory
 
-d = datetime.datetime.today().date().strftime('%b-%d-%Y')
-if not os.path.exists(d):
-    os.makedirs(d)
-os.chdir(d)
+if not os.path.exists('temp'):
+    os.makedirs('temp')
+os.chdir('temp')
 
 # Get options
 

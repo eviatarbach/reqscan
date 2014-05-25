@@ -115,13 +115,13 @@ try:
 
     scale = float(config.get('Options', 'resize'))
 
-    if len(glob.glob('out*.tif')) == 0:
+    if len(glob.glob('../temp/out*.tif')) == 0:
         print('{}Error: no scanned files{}'.format(Colours.FAIL,
                                                    Colours.ENDC))
         error = 1
 
     else:
-        for each_file in natural_sorted(glob.glob('out*.tif')):
+        for each_file in natural_sorted(glob.glob('../temp/out*.tif')):
             data_matrix_done = False
 
             print('File: ' + each_file)

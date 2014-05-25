@@ -22,6 +22,7 @@ reqscan is an open-source Python-based electronic medical record
 recognition.'''
 
 import subprocess
+import ConfigParser
 
 from Tkinter import *
 import ttk
@@ -31,6 +32,51 @@ SYMBOLOGIES = ['ean13', 'ean8', 'upca', 'upce', 'isbn13', 'isbn10', 'i25',
                'code39', 'code128', 'pdf417', 'qrcode']
 
 class Application(Frame):
+    def scan(self):
+        try:
+            dpi = self.dpi.get()
+        except ValueError:  # some value invalid for an int, like 'a'
+            dpi = 300
+        opt_dict = {'dpi': dpi,
+                    'source': self.source.get()}
+        self.config.defaults().update(opt_dict)
+        self.save_options()
+        self.run_script('scan.py')
+
+    def process(self):
+        try:
+            if self.resize_var.get() == 'normal':
+                resize = self.resize_field.get()
+            else:
+                resize = 1.0
+        except ValueError:
+            resize = 1.0
+
+        try:
+            if self.crop_check_state.get() == 'normal':
+                cropbox = ' '.join([str(field.get()) for field in self.cropbox])
+            else:
+                cropbox = 'None'
+        except ValueError:
+            cropbox = 'None'
+        opt_dict = {'cropbox': cropbox,
+                    'datamatrix': ('True' if (self.data_matrix.get() == 1) else
+                                   'False'),
+                    'symbologies': ' '.join(filter(None,
+                                                   [(SYMBOLOGIES[i] if var.get()
+                                                     else '') for i, var in
+                                                    enumerate(self.sym_vars)])),
+                    'resize': resize}
+        self.config.defaults().update(opt_dict)
+        self.save_options()
+        self.run_script('process.py')
+
+    def save_options(self):
+        with open('options_gui.txt', 'w') as options_file:
+            self.config.add_section('Options')
+            self.config.write(options_file)
+            #options_file.close()
+
     def run_script(self, pyfile):
         self.scan_button.configure(state="disabled")
         self.process_button.configure(state="disabled")
@@ -98,8 +144,7 @@ class Application(Frame):
                                                                 column=0,
                                                                 sticky='W')
         self.scan_button = ttk.Button(self, text="Scan",
-                                  command=lambda:
-                                           self.run_script('scan.py'))
+                                      command=self.scan)
         self.scan_button.grid(row=1, column=0, sticky='W')
 
         # Start process widgets
@@ -166,13 +211,18 @@ class Application(Frame):
                                                                pady=(15, 0))
         self.symbologies.grid(row=8, column=0, sticky='W')
 
+        self.sym_vars = [IntVar() for sym in SYMBOLOGIES]
+
         for i, sym in enumerate(SYMBOLOGIES):
-            Checkbutton(self.symbologies, text=sym).grid(row=i//2, column=i%2,
-                                                         sticky='W')
+            Checkbutton(self.symbologies, text=sym,
+                        variable=self.sym_vars[i]).grid(row=i//2, column=i%2,
+                                                        sticky='W')
 
         # Data Matrix reading is not provided by ZBar, so has to be handled
         # separately
-        Checkbutton(self.symbologies, text='datamatrix').grid(row=(i + 1)//2,
+        self.data_matrix = IntVar()
+        Checkbutton(self.symbologies, text='datamatrix',
+                    variable=self.data_matrix).grid(row=(i + 1)//2,
                                                               column=(i + 1)%2,
                                                               sticky='W')
 
@@ -189,7 +239,7 @@ class Application(Frame):
                                                    self.resize_var.get())).grid(row=9, column=0, sticky='W', pady=(15, 0))
 
         self.process_button = ttk.Button(self, text="Process",
-                           command=lambda: self.run_script('process.py'))
+                                         command=self.process)
 
         self.process_button.grid(row=1, column=1, sticky='W')
 
@@ -197,6 +247,13 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.pack()
         self.create_widgets()
+        self.config = ConfigParser.RawConfigParser()
+        '''with open('options_gui.txt', 'w+') as options_file:
+            try:
+                self.config.readfp(options_file)
+            except (IOError, ConfigParser.NoSectionError):
+                pass'''
+        #self.options_file.close()
 
 root = Tk()
 root.resizable(0, 0) # disable resizing
