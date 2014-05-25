@@ -36,17 +36,28 @@ for dep in ['scanimage']:  # Check dependencies
 if exit:
     raise SystemExit
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--gui', action='store_true')
+args = parser.parse_args()
+
 config = ConfigParser.RawConfigParser(defaults={'dpi': 300,
                                                 'source': 'ADF Front'})
 
 try:
-    options_file = open('options.txt', 'r+')
+    if not args.gui:
+        options_file = open('options.txt', 'r+')
+    else:
+        options_file = open('options_gui.txt', 'r+')
+    else:
     config.readfp(options_file)
     if not config.has_section('Options'):
         raise ConfigParser.NoSectionError
 except (IOError, ConfigParser.NoSectionError):
     config.add_section('Options')
-    options_file = open('options.txt', 'w')
+    if not args.gui:
+        options_file = open('options.txt', 'w')
+    else:
+        options_file = open('options_gui.txt', 'w')
     config.write(options_file)
     options_file.close()
 

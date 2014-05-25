@@ -36,6 +36,7 @@ failed = 0
 parser = argparse.ArgumentParser()
 parser.add_argument('--dir')
 parser.add_argument('--nocolours', action='store_true')
+parser.add_argument('--gui', action='store_true')
 args = parser.parse_args()
 
 def filter_alphanum(string):
@@ -61,7 +62,7 @@ def find_max_index(name, start):
 
 class Colours:
     # Idea from joeld from StackOverflow question 287871
-    if args.nocolours == False:
+    if not args.nocolours:
         OKGREEN = '\033[92m'
         WARNING = '\033[93m'
         FAIL = '\033[91m'
@@ -84,14 +85,20 @@ try:
                                                     'resize': 0.25})
 
     try:
-        options_file = open('options.txt', 'r+')
+        if not args.gui:
+            options_file = open('options.txt', 'r+')
+        else:
+            options_file = open('options_gui.txt', 'r+')
         config.readfp(options_file)
         if not config.has_section('Options'):
             raise ConfigParser.NoSectionError
         options_file.close()
     except (IOError, ConfigParser.NoSectionError):
         config.add_section('Options')
-        options_file = open('options.txt', 'w')
+        if not args.gui:
+            options_file = open('options.txt', 'w')
+        else:
+            options_file = open('options_gui.txt', 'w')
         config.write(options_file)
         options_file.close()
 

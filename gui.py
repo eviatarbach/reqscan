@@ -83,7 +83,7 @@ class Application(Frame):
         self.output.configure(state="normal")
         self.output.delete(1.0, END)  # clear text
         self.output.configure(state="disabled")
-        p = subprocess.Popen(['python', pyfile, '--nocolours', '--dir',
+        p = subprocess.Popen(['python', pyfile, '--nocolours', '--gui', '--dir',
                               ('' if (self.dir_var.get() == 'default') else
                                self.dir.get())],
                              stdout=subprocess.PIPE,
