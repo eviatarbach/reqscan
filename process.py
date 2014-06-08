@@ -155,22 +155,23 @@ try:
 
             if config.getboolean('Options', 'datamatrix'):
                 print('Checking for Data Matrix barcodes...')
-                pil.save('todmtx.png')
                 try:
-                    data_matrix = filter_alphanum(subprocess
-                                                  .check_output(['dmtxread',
-                                                                 '-N1',
-                                                                 '-m3000',
-                                                                 'todmtx.png']))
+                    data_matrix = filter(None,
+                                         map(filter_alphanum,
+                                             (subprocess.check_output(['dmtxread',
+                                                                       '-n',
+                                                                       '-m3000',
+                                                                       each_file])
+                                              .split('\n'))))
                 except subprocess.CalledProcessError:
                     data_matrix = None
 
-                if data_matrix:
-                    if not os.path.exists(data_matrix + '.pdf'):
-                        dname = data_matrix + '.pdf'
+                for symbol in data_matrix:
+                    if not os.path.exists(symbol + '.pdf'):
+                        dname = symbol + '.pdf'
                     else:
-                        dname = '{}_{}.pdf'.format(data_matrix,
-                                                   find_max_index(data_matrix,
+                        dname = '{}_{}.pdf'.format(symbol,
+                                                   find_max_index(symbol,
                                                                   2))
 
                     if scale != 1:
@@ -225,12 +226,6 @@ except:
     print(traceback.format_exc())
 
 finally:
-    # Handles exiting and cleaning up, even in the case of errors
-    for scrap_file in (['tozbar.png', 'todmtx.png']):
-        try:
-            os.remove(scrap_file)
-        except:
-            pass
     FNULL.close()
     os.chdir('..')  # Return to original directory
     if error == 1:
