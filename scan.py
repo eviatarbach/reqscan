@@ -25,6 +25,7 @@ import subprocess
 import ConfigParser
 import os
 import glob
+import argparse
 
 FNULL = open(os.devnull, 'w')
 
@@ -48,11 +49,11 @@ try:
         options_file = open('options.txt', 'r+')
     else:
         options_file = open('options_gui.txt', 'r+')
-    else:
     config.readfp(options_file)
     if not config.has_section('Options'):
-        raise ConfigParser.NoSectionError
-except (IOError, ConfigParser.NoSectionError):
+        config.add_section('Options')
+    options_file.close()
+except IOError:
     config.add_section('Options')
     if not args.gui:
         options_file = open('options.txt', 'w')
@@ -82,7 +83,8 @@ else:
 
 # Scan
 
-os.system('scanimage --batch --format=tiff --source "{}" --resolution {} '
-          '--batch-start {}'.format(source, dpi, batch_start))
+os.system('scanimage --batch --format=tiff {} --resolution {} '
+          '--batch-start {}'.format('--source "{}"'.format(source) if
+                                    source else '', dpi, batch_start))
 
 os.chdir('..')  # Return to original directory

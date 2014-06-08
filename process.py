@@ -91,9 +91,9 @@ try:
             options_file = open('options_gui.txt', 'r+')
         config.readfp(options_file)
         if not config.has_section('Options'):
-            raise ConfigParser.NoSectionError
+            config.add_section('Options')
         options_file.close()
-    except (IOError, ConfigParser.NoSectionError):
+    except IOError:
         config.add_section('Options')
         if not args.gui:
             options_file = open('options.txt', 'w')
@@ -148,7 +148,7 @@ try:
 
             if not config.get('Options', 'cropbox').split()[0] == 'None':
                 cropbox = map(int, config.get('Options', 'cropbox').split())
-                pil.crop(cropbox)
+                pil = pil.crop(cropbox)
             raw = pil.tostring()
             image = zbar.Image(pil.size[0], pil.size[1], 'Y800', raw)
             scanner.scan(image)
@@ -173,9 +173,12 @@ try:
                                                    find_max_index(data_matrix,
                                                                   2))
 
-                    pil.resize((int(pil.size[0] * scale),
-                                int(pil.size[1] * scale)),
-                               Image.ANTIALIAS).save(dname)
+                    if scale != 1:
+                        pil.resize((int(pil.size[0] * scale),
+                                    int(pil.size[1] * scale)),
+                                   Image.ANTIALIAS).save(dname)
+                    else:
+                        pil.save(dname)
 
                     data_matrix_done = True
 

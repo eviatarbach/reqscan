@@ -29,7 +29,7 @@ import ttk
 import tkFont
 
 SYMBOLOGIES = ['ean13', 'ean8', 'upca', 'upce', 'isbn13', 'isbn10', 'i25',
-               'code39', 'code128', 'pdf417', 'qrcode']
+               'code39', 'code128', 'qrcode']
 
 class Application(Frame):
     def scan(self):
@@ -46,7 +46,7 @@ class Application(Frame):
     def process(self):
         try:
             if self.resize_var.get() == 'normal':
-                resize = self.resize_field.get()
+                resize = self.resize.get()
             else:
                 resize = 1.0
         except ValueError:
@@ -73,7 +73,7 @@ class Application(Frame):
 
     def save_options(self):
         with open('options_gui.txt', 'w') as options_file:
-            self.config.add_section('Options')
+            #self.config.add_section('Options')
             self.config.write(options_file)
             #options_file.close()
 
@@ -83,9 +83,13 @@ class Application(Frame):
         self.output.configure(state="normal")
         self.output.delete(1.0, END)  # clear text
         self.output.configure(state="disabled")
-        p = subprocess.Popen(['python', pyfile, '--nocolours', '--gui', '--dir',
-                              ('' if (self.dir_var.get() == 'default') else
-                               self.dir.get())],
+        command = ['python', pyfile, '--gui']
+        if pyfile == 'process.py':
+            command.append('--nocolours')
+            if self.dir_var.get() != 'default':
+                command.append('--dir')
+                command.append(self.dir.get())
+        p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
         while p.poll() is None:
@@ -109,9 +113,14 @@ class Application(Frame):
             widget.configure(state=state)
 
     def create_widgets(self):
+        self.scrollbar = Scrollbar(self)
+        self.scrollbar.grid(row=0, column=3, sticky='NS')
+
         # Script output
-        self.output = Text(self, state='disabled')
-        self.output.grid(row=0, column=2, sticky='N', padx=(40, 0))
+        self.output = Text(self, state='disabled', yscrollcommand=self.scrollbar.set)
+        self.output.grid(row=0, column=2, sticky='NS', padx=(40, 0))
+
+        self.scrollbar.config(command=self.output.yview)
 
         # Don't let there be a cursor
         self.output.bind('<1>', lambda event: self.output.focus_set())
@@ -141,8 +150,8 @@ class Application(Frame):
                                                         sticky='W')
 
         ttk.Entry(self.scan_pane, textvariable=self.source).grid(row=4,
-                                                                column=0,
-                                                                sticky='W')
+                                                                 column=0,
+                                                                 sticky='W')
         self.scan_button = ttk.Button(self, text="Scan",
                                       command=self.scan)
         self.scan_button.grid(row=1, column=0, sticky='W')
@@ -212,6 +221,9 @@ class Application(Frame):
         self.symbologies.grid(row=8, column=0, sticky='W')
 
         self.sym_vars = [IntVar() for sym in SYMBOLOGIES]
+
+        for sym_var in self.sym_vars:
+            sym_var.set(1)
 
         for i, sym in enumerate(SYMBOLOGIES):
             Checkbutton(self.symbologies, text=sym,
