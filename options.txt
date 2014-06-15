@@ -1,0 +1,10 @@
+[DEFAULT]
+source =
+dpi = 300
+cropbox = None
+datamatrix = True
+symbologies = ean13 ean8 upca upce isbn13 isbn10 i25 code39 code128 qrcode
+resize = 0.25
+
+[Options]
+

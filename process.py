@@ -81,7 +81,9 @@ try:
     config = ConfigParser.RawConfigParser(defaults={'cropbox': 'None',
                                                     'datamatrix': 'True',
                                                     'symbologies':
-                                                     'code39 code128',
+                                                     ('ean13 ean8 upca upce '
+                                                      'isbn13 isbn10 i25 '
+                                                      'code39 code128 qrcode'),
                                                     'resize': 0.25})
 
     try:

@@ -42,7 +42,7 @@ parser.add_argument('--gui', action='store_true')
 args = parser.parse_args()
 
 config = ConfigParser.RawConfigParser(defaults={'dpi': 300,
-                                                'source': 'ADF Front'})
+                                                'source': ''})
 
 try:
     if not args.gui:
