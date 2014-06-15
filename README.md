@@ -13,6 +13,12 @@ The following are the names of the Ubuntu repository packages:
 - scanimage
 - dmtx-utils (optional, for DataMatrix scanning)
 
+Instructions
+------------
+The visual interface can be invoked with `python gui.py`, or the scripts invoked separately with `python scan.py` or `python process.py`.
+
+`scan.py` scans all the pages in the ADF source and saves them in a temporary folder. `process.py` then processes the scanned files, saving them in a directory named after the current date, with the filenames consisting of the barcode data. Files with multiple barcodes are saved multiple times, abd those with no barcodes are saved as `fail_*.pdf`. Options for the scripts can be set in `options.txt`.
+
 Options
 -------
 - dpi: integer
@@ -28,8 +34,4 @@ Options
   `code128`, and `qrcode`
   - Only these symbologies will be looked for.
 - resize: float between 0 and 1
-  - Scaling factor for saving images
-
-Instructions
-------------
-The visual interface can be invoked with `python gui.py`, or the scripts invoked separately with `python scan.py` or `python process.py`.
+  - Scaling factor for saving images (applied to each dimension, not the area)
