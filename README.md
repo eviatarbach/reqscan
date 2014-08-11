@@ -35,3 +35,7 @@ Options
   - Only these symbologies will be looked for.
 - resize: float between 0 and 1
   - Scaling factor for saving images (applied to each dimension, not the area)
+
+Questions
+---------
+You may send me questions about reqscan at eviatarbach[AT]gmail.com.
