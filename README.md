@@ -3,6 +3,8 @@ reqscan
 
 **reqscan** is a Python program for digitizing records containing barcodes with automatic document feeder (ADF) scanners, using SANE and ZBar. It provides a low-cost alternative to commercial systems which can cost tens of thousands of dollars. It can be installed on GNU/Linux and Mac OS X.
 
+You can read more about it in [this open access article](http://jpathinformatics.org/article.asp?issn=2153-3539;year=2015;volume=6;issue=1;spage=3;epage=3;aulast=Bach) in the *Journal of Pathology Informatics*.
+
 Dependencies
 ------------
 The following are the names of the Ubuntu repository packages:
